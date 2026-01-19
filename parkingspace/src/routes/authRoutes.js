@@ -1,8 +1,9 @@
 import express from "express";
-import { register, verifyEmail, login } from "../controllers/authController.js";
+import { register, login } from "../controllers/authController.js";
 
 import authMiddleware from "../middleware/authMiddleware.js";
 import verifiedMiddleware from "../middleware/verifiedMiddleware.js";
+import roleMiddleware from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
@@ -10,7 +11,7 @@ const router = express.Router();
 router.get(
   "/profile",
   authMiddleware,
-  verifiedMiddleware,
+  // removed verifiedMiddleware since no verification needed
   (req, res) => {
     res.json({
       id: req.user.id,
@@ -19,9 +20,10 @@ router.get(
   }
 );
 
-// Auth routes
+// Auth routes (only register and login needed)
 router.post("/register", register);
-router.get("/verify-email", verifyEmail);
 router.post("/login", login);
+
+// Removed verify-email route
 
 export default router;

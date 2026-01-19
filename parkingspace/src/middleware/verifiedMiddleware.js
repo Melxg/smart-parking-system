@@ -1,10 +1,6 @@
+// verifiedMiddleware.js (modified)
 const verifiedMiddleware = (req, res, next) => {
-  if (!req.user.is_verified) {
-    return res.status(403).json({
-      message: "Please verify your email to continue.",
-    });
-  }
-
+  // Since all users are automatically verified, just continue
   next();
 };
 
