@@ -15,11 +15,7 @@ const User = sequelize.define("User", {
     type: DataTypes.BOOLEAN,
     defaultValue: true, // Always true since no verification
   },
-  role: {
-    type: DataTypes.ENUM("admin", "driver", "owner"),
-    allowNull: false,
-    defaultValue: "driver",
-  },
+  
   // Removed verification_token and token_expires fields
 }, {
   timestamps: true,
