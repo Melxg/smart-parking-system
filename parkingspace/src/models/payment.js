@@ -1,0 +1,60 @@
+import { DataTypes } from "sequelize";
+import sequelize from "../config/db.js";
+
+const PLATFORM_FEE_PERCENTAGE = 0.05; // 5%
+
+const Payment = sequelize.define("payment", {
+  id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+
+  amount: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+
+  platform_fee: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+
+  owner_amount: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+
+  payment_method: {
+    type: DataTypes.ENUM("card", "wallet", "cash"),
+    allowNull: false,
+  },
+
+  payment_status: {
+    type: DataTypes.ENUM("pending", "paid", "failed"),
+    defaultValue: "pending",
+  },
+
+  paid_at: { type: DataTypes.DATE },
+});
+
+//
+// 🧠 INSTANCE METHOD: complete payment
+//
+Payment.prototype.completePayment = async function (transaction) {
+  this.platform_fee = Number(this.amount) * PLATFORM_FEE_PERCENTAGE;
+  this.owner_amount = Number(this.amount) - Number(this.platform_fee);
+  this.payment_status = "paid";
+  this.paid_at = new Date();
+
+  await this.save({ transaction });
+};
+
+//
+// 🧠 STATIC METHOD: create + complete
+//
+Payment.createCompletedPayment = async function (
+  { session_id, amount, payment_method },
+  transaction
+) {
+  const payment = await Payment.create(
+    {
+      session_id,
+      amount,
+      payment_method,
+    },
+    { transaction }
+  );
+
+  await payment.completePayment(transaction);
+  return payment;
+};
+
+export default Payment;

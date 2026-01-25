@@ -17,13 +17,10 @@ export const register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Determine role
-    const role = email === process.env.ADMIN_EMAIL ? "admin" : "driver";
-
+   
     await User.create({
       email,
       password: hashedPassword,
-      role,
       is_verified: true, // Automatically verified without email verification
     });
 
@@ -38,30 +35,14 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { email, password, role } = req.body;
+    const { email, password } = req.body;
 
     const user = await User.findOne({ where: { email } });
     if (!user)
       return res.status(400).json({ message: "Invalid credentials" });
 
     // No email verification check - user is automatically verified
-    
-    // Role handling for admin vs regular users
-    if (user.role === "admin") {
-      // Admin can't change role
-    } else {
-      if (!["driver", "owner"].includes(role)) {
-        return res.status(400).json({
-          message: "Invalid role selection",
-        });
-      }
-
-      // Update role if different
-      if (user.role !== role) {
-        user.role = role;
-        await user.save();
-      }
-    }
+ 
 
     const match = await bcrypt.compare(password, user.password);
     if (!match)
@@ -69,8 +50,8 @@ export const login = async (req, res) => {
 
     const token = jwt.sign(
       { 
-        id: user.id,
-        role: user.role,
+        id: user.id
+        
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
@@ -81,5 +62,3 @@ export const login = async (req, res) => {
     res.status(500).json({ message: "Login failed" });
   }
 };
-
-// Remove verifyEmail function entirely
