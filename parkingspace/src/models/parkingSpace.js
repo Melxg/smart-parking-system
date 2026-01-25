@@ -17,4 +17,24 @@ const ParkingSpace = sequelize.define("parkingSpace", {
   is_active: { type: DataTypes.BOOLEAN, defaultValue: true },
 });
 
+ParkingSpace.prototype.occupySpot = async function (transaction) {
+  if (!this.is_active) {
+    throw new Error("Parking is not active");
+  }
+
+  if (this.available_spots <= 0) {
+    throw new Error("No available spots");
+  }
+
+  this.available_spots -= 1;
+  await this.save({ transaction });
+};
+
+ParkingSpace.prototype.releaseSpot = async function (transaction) {
+  if (this.available_spots < this.total_spots) {
+    this.available_spots += 1;
+    await this.save({ transaction });
+  }
+};
+
 export default ParkingSpace;
