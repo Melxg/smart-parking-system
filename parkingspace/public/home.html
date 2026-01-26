@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Parking</title>
+  <script src="./js/guard.js"></script>
+
+  <link rel="stylesheet" href="./css/style.css" />
+  <!-- Leaflet CSS -->
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+</head>
+<body>
+
+  <h1>🚗 Smart Parking System</h1>
+  <a href="add-parking.html">Add Parking</a>
+
+  <button id="findParkingBtn">Find Parking Near Me</button>
+
+  <div id="map"></div>
+  <div id="parking-list"></div>
+
+  <button id="endParkingBtn">
+    End Parking
+  </button>
+  <a href="my-parking.html">My Parkings</a>
+ <button onclick="logout()">Logout</button>
+
+
+  <!-- JS FILES -->
+   <!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="./js/api.js"></script>
+  <script src="./js/map.js"></script>
+  <script src="./js/session.js"></script>
+
+</body>
+</html>

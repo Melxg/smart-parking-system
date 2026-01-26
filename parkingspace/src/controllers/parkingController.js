@@ -1,5 +1,8 @@
 import { Op, literal } from "sequelize";
+
+import sequelize from "../config/db.js";
 import { parkingSpace, parkingLocation, parkingImage } from "../models/index.js";
+
 
 export const createParking = async (req, res) => {
   try {
@@ -18,8 +21,32 @@ export const createParking = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
+    // Distance in KM (0.02 km = 20 meters)
+    const DISTANCE_LIMIT = 0.02;
+
+    // Haversine formula
+    const distanceFormula = literal(`
+      (6371 * ACOS(
+        COS(RADIANS(${parseFloat(latitude)})) *
+        COS(RADIANS(latitude)) *
+        COS(RADIANS(longitude) - RADIANS(${parseFloat(longitude)})) +
+        SIN(RADIANS(${parseFloat(latitude)})) *
+        SIN(RADIANS(latitude))
+      ))
+    `);
+
+    const nearbyParking = await parkingLocation.findOne({
+      where: sequelize.where(distanceFormula, '<', DISTANCE_LIMIT),
+    });
+
+    if (nearbyParking) {
+      return res.status(400).json({
+        message: "A parking spot already exists at this location",
+      });
+    }
+
     const parking = await parkingSpace.create({
-      owner_id: req.user.id, // still track ownership
+      owner_id: req.user.id,
       name,
       description,
       total_spots,
@@ -206,7 +233,6 @@ export const deleteParking = async (req, res) => {
 };
 
 
-
 export const searchParking = async (req, res) => {
   try {
     const { latNum, lngNum, radiusNUM = 3 } = req.query;
@@ -226,15 +252,15 @@ export const searchParking = async (req, res) => {
     }
 
     // Haversine formula (distance in KM)
-    const distanceFormula = `
-      (6371 * acos(
-        cos(radians(${lat})) *
-        cos(radians(latitude)) *
-        cos(radians(longitude) - radians(${lng})) +
-        sin(radians(${lat})) *
-        sin(radians(latitude))
+    const distanceFormula = literal(`
+      (6371 * ACOS(
+        COS(RADIANS(${lat})) *
+        COS(RADIANS(latitude)) *
+        COS(RADIANS(longitude) - RADIANS(${lng})) +
+        SIN(RADIANS(${lat})) *
+        SIN(RADIANS(latitude))
       ))
-    `;
+    `);
 
     const parkings = await parkingSpace.findAll({
       where: {
@@ -244,8 +270,12 @@ export const searchParking = async (req, res) => {
       include: [
         {
           model: parkingLocation,
-          attributes: ["latitude", "longitude", "address"],
-          where: literal(`${distanceFormula} <= ${radius}`),
+          attributes: ["latitude", "longitude", "address", "city"],
+          where: {
+            [Op.and]: [
+              sequelize.where(distanceFormula, '<=', radius)
+            ]
+          },
         },
       ],
     });

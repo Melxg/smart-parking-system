@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.get("/search", searchParking);
 router.post("/",authMiddleware,  createParking);
-router.post("/mine", authMiddleware, getMyParkings);
+router.get("/mine", authMiddleware, getMyParkings);
 router.put("/:id", authMiddleware, updateParking);
 router.patch("/:id/deactivate", authMiddleware, deactivateParking);
 router.patch("/:id/activate", authMiddleware, activateParking);

@@ -1,126 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ParkSmart - Find Parking Easily</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Smart Parking - Home</title>
+    <link rel="stylesheet" href="./css/style.css" />
 </head>
 <body>
-    <div class="landing-container">
-        <nav class="navbar">
-            <div class="logo">
-                <i class="fas fa-parking"></i>
-                <span>ParkSmart</span>
-            </div>
-            <div class="nav-links">
-                <a href="#features">Features</a>
-                <a href="#how-it-works">How It Works</a>
-                <button class="btn-login" onclick="navigateToLogin()">Login</button>
-            </div>
-        </nav>
+    <!-- Hero Section -->
+    <div class="container home-hero">
+        <h1>🚗 Smart Parking System</h1>
+        <p>
+            Find nearby parking easily.<br>
+            Register your parking space and earn money.<br>
+            No searching. No stress.
+        </p>
 
-        <section class="hero">
-            <div class="hero-content">
-                <h1>Find Parking Made <span class="highlight">Simple</span></h1>
-                <p>Locate available parking spots in real-time, book instantly, and pay seamlessly.</p>
-                <div class="hero-buttons">
-                    <button class="btn-primary" onclick="navigateToLogin()">
-                        <i class="fas fa-sign-in-alt"></i> Get Started
-                    </button>
-                    <button class="btn-secondary" onclick="scrollToFeatures()">
-                        <i class="fas fa-info-circle"></i> Learn More
-                    </button>
-                </div>
-            </div>
-            <div class="hero-image">
-                <img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Parking Illustration">
-            </div>
-        </section>
+        <div class="home-buttons">
+            <button onclick="window.location.href='/login.html'" class="btn" style="padding: 15px 30px;">
+                🔑 Login
+            </button>
+            <button onclick="window.location.href='/register.html'" class="btn" style="padding: 15px 30px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                📝 Register
+            </button>
+        </div>
+    </div>
 
-        <section id="features" class="features">
-            <h2>Why Choose ParkSmart?</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </div>
-                    <h3>Real-Time Availability</h3>
-                    <p>See available parking spots in real-time on an interactive map.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <h3>Quick Booking</h3>
-                    <p>Start parking sessions instantly with just one tap.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-wallet"></i>
-                    </div>
-                    <h3>Seamless Payments</h3>
-                    <p>Automatic payment calculation when you end your session.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3>Secure Platform</h3>
-                    <p>Your data and payments are protected with encryption.</p>
-                </div>
+    <!-- Features Section -->
+    <div class="container">
+        <h2>Why Choose Smart Parking?</h2>
+        
+        <div id="parking-list" style="margin-top: 30px;">
+            <div class="parking-card">
+                <h3>📍 Easy to Find</h3>
+                <p>Real-time availability of nearby parking spots with accurate pricing.</p>
             </div>
-        </section>
-
-        <section id="how-it-works" class="how-it-works">
-            <h2>How It Works</h2>
-            <div class="steps">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <h3>Login & Locate</h3>
-                    <p>Sign in and allow location access to find parking near you.</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <h3>Select & Start</h3>
-                    <p>Choose a parking spot and start your session.</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <h3>Park & Go</h3>
-                    <p>Park your vehicle and go about your business.</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">4</div>
-                    <h3>End & Pay</h3>
-                    <p>End session when you return. Payment is automatically calculated.</p>
-                </div>
+            
+            <div class="parking-card">
+                <h3>💰 Earn Money</h3>
+                <p>List your unused parking space and earn passive income.</p>
             </div>
-        </section>
-
-        <footer>
-            <div class="footer-content">
-                <div class="footer-logo">
-                    <i class="fas fa-parking"></i>
-                    <span>ParkSmart</span>
-                </div>
-                <p>© 2024 ParkSmart. All rights reserved.</p>
-                <p>Simplifying parking, one spot at a time.</p>
+            
+            <div class="parking-card">
+                <h3>⏱️ Time Saving</h3>
+                <p>No more circling blocks looking for parking. Reserve spots in advance.</p>
             </div>
-        </footer>
+            
+            <div class="parking-card">
+                <h3>🔒 Secure Payments</h3>
+                <p>Safe and secure payment processing with instant confirmation.</p>
+            </div>
+        </div>
     </div>
 
     <script>
-        function navigateToLogin() {
-            window.location.href = 'login.html';
-        }
-        
-        function scrollToFeatures() {
-            document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
-        }
+        // Add smooth transitions
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.parking-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.classList.add('fade-in');
+            });
+        });
     </script>
 </body>
 </html>
