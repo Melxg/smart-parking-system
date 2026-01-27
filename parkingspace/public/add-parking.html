@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Add Parking</title>
+
+  <!-- Leaflet -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+
+  <h2>📍 Add Parking Space</h2>
+
+  <p>Click on the map to select parking location</p>
+
+  <input
+  type="text"
+  id="searchInput"
+  placeholder="Search location..."
+/>
+<button id="searchBtn">Search</button>
+
+
+  <div id="map"></div>
+
+ <form id="parkingForm">
+
+  <input
+    type="text"
+    id="name"
+    placeholder="Parking name"
+    required
+  />
+
+  <textarea
+    id="description"
+    placeholder="Description (optional)"
+  ></textarea>
+
+  <input
+    type="number"
+    id="totalSpots"
+    placeholder="Total spots"
+    required
+  />
+
+  <input
+    type="number"
+    id="price"
+    placeholder="Price per hour"
+    required
+  />
+
+  <input
+    type="text"
+    id="address"
+    placeholder="Address (optional)"
+  />
+
+  <input
+    type="text"
+    id="city"
+    placeholder="City (optional)"
+  />
+
+  <button type="submit">Save Parking</button>
+</form>
+
+  <script src="./js/api.js"></script>
+    <script src="./js/search.js"></script>
+
+  <script src="./js/addParking.js"></script>
+
+</body>
+</html>

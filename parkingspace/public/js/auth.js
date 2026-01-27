@@ -1,266 +1,240 @@
-const API_BASE_URL = '/auth';
+// auth.js - Clean Authentication Handler
+const API_BASE = "http://localhost:3000/api";
 
-class AuthService {
+class Auth {
     constructor() {
-        this.token = localStorage.getItem('token');
-        this.user = null;
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        // Login Form
+        const loginForm = document.getElementById("loginForm");
+        if (loginForm) {
+            loginForm.addEventListener("submit", (e) => this.handleLogin(e));
+        }
+
+        // Register Form
+        const registerForm = document.getElementById("registerForm");
+        if (registerForm) {
+            registerForm.addEventListener("submit", (e) => this.handleRegister(e));
+        }
+    }
+
+    async handleLogin(e) {
+        e.preventDefault();
         
-        if (this.token) {
-            this.decodeToken();
-        }
-    }
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
 
-    decodeToken() {
-        try {
-            const payload = JSON.parse(atob(this.token.split('.')[1]));
-            this.user = {
-                id: payload.id,
-                role: payload.role
-            };
-            return this.user;
-        } catch (e) {
-            console.error('Invalid token:', e);
-            this.logout();
-            return null;
+        if (!this.validateEmail(email)) {
+            this.showAlert("Please enter a valid email address", "error");
+            return;
         }
-    }
 
-    async register(email, password) {
+        if (!password) {
+            this.showAlert("Please enter your password", "error");
+            return;
+        }
+
+        this.showLoading(true);
+
         try {
-            const response = await fetch(`${API_BASE_URL}/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password })
+            const res = await fetch(`${API_BASE}/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
             });
 
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.message || 'Registration failed');
-            }
+            const data = await res.json();
 
-            return { 
-                success: true, 
-                message: data.message,
-                status: response.status
-            };
+            if (data.token) {
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("userEmail", email);
+                this.showAlert("Login successful!", "success");
+                setTimeout(() => {
+                    window.location.href = "/home.html";
+                }, 1000);
+            } else {
+                this.showAlert(data.message || "Login failed", "error");
+            }
         } catch (error) {
-            console.error('Registration error:', error);
-            return { 
-                success: false, 
-                message: error.message || 'Registration failed. Please try again.'
-            };
+            console.error("Login error:", error);
+            this.showAlert("Network error. Please try again.", "error");
+        } finally {
+            this.showLoading(false);
         }
     }
 
-    async login(email, password, role = 'driver') {
+    async handleRegister(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword")?.value;
+
+        if (!this.validateEmail(email)) {
+            this.showAlert("Please enter a valid email address", "error");
+            return;
+        }
+
+        if (password.length < 6) {
+            this.showAlert("Password must be at least 6 characters long", "error");
+            return;
+        }
+
+        if (confirmPassword && password !== confirmPassword) {
+            this.showAlert("Passwords do not match", "error");
+            return;
+        }
+
+        this.showLoading(true);
+
         try {
-            const response = await fetch(`${API_BASE_URL}/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password, role })
+            const res = await fetch(`${API_BASE}/auth/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
             });
 
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.message || 'Login failed');
+            const data = await res.json();
+
+            if (res.ok) {
+                this.showAlert("Registration successful! Please login.", "success");
+                setTimeout(() => {
+                    window.location.href = "/login.html";
+                }, 1500);
+            } else {
+                this.showAlert(data.message || "Registration failed", "error");
             }
-
-            // Store token
-            this.token = data.token;
-            localStorage.setItem('token', data.token);
-            this.decodeToken();
-
-            return { 
-                success: true, 
-                role: this.user.role,
-                message: 'Login successful'
-            };
         } catch (error) {
-            console.error('Login error:', error);
-            return { 
-                success: false, 
-                message: error.message || 'Login failed. Please check your credentials.'
-            };
+            console.error("Registration error:", error);
+            this.showAlert("Network error. Please try again.", "error");
+        } finally {
+            this.showLoading(false);
         }
     }
 
-    async getProfile() {
-        if (!this.token) {
-            throw new Error('Not authenticated');
+    validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+    showAlert(message, type = "error") {
+        // Create or get alert container
+        let alertContainer = document.getElementById("alertContainer");
+        if (!alertContainer) {
+            alertContainer = document.createElement("div");
+            alertContainer.id = "alertContainer";
+            alertContainer.style.position = "fixed";
+            alertContainer.style.top = "20px";
+            alertContainer.style.right = "20px";
+            alertContainer.style.zIndex = "1000";
+            document.body.appendChild(alertContainer);
         }
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/profile`, {
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
+        const alertDiv = document.createElement("div");
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.style.cssText = `
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            color: ${type === "success" ? "#155724" : "#721c24"};
+            background: ${type === "success" ? "#d4edda" : "#f8d7da"};
+            border: 1px solid ${type === "success" ? "#c3e6cb" : "#f5c6cb"};
+            min-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease;
+        `;
+
+        alertDiv.innerHTML = `
+            ${type === "success" ? "✅" : "❌"} ${message}
+            <button style="margin-left: 15px; background: none; border: none; cursor: pointer; float: right;">
+                ✕
+            </button>
+        `;
+
+        alertContainer.appendChild(alertDiv);
+
+        // Auto-remove success messages after 5 seconds
+        if (type === "success") {
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.style.opacity = "0";
+                    alertDiv.style.transition = "opacity 0.3s";
+                    setTimeout(() => alertDiv.remove(), 300);
                 }
-            });
+            }, 5000);
+        }
 
-            if (!response.ok) {
-                // If unauthorized, clear token and redirect
-                if (response.status === 401) {
-                    this.logout();
-                    throw new Error('Session expired. Please login again.');
-                }
-                throw new Error('Failed to fetch profile');
+        // Close button functionality
+        alertDiv.querySelector("button").addEventListener("click", () => {
+            alertDiv.remove();
+        });
+    }
+
+    showLoading(show) {
+        let loadingDiv = document.getElementById("loadingOverlay");
+        
+        if (show) {
+            if (!loadingDiv) {
+                loadingDiv = document.createElement("div");
+                loadingDiv.id = "loadingOverlay";
+                loadingDiv.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.5);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 9999;
+                `;
+                
+                loadingDiv.innerHTML = `
+                    <div style="
+                        background: white;
+                        padding: 30px;
+                        border-radius: 10px;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 15px;
+                    ">
+                        <div class="spinner"></div>
+                        <p>Loading...</p>
+                    </div>
+                `;
+                
+                document.body.appendChild(loadingDiv);
             }
-
-            return await response.json();
-        } catch (error) {
-            console.error('Profile fetch error:', error);
-            throw error;
+        } else {
+            if (loadingDiv) {
+                loadingDiv.remove();
+            }
         }
     }
 
     logout() {
-        this.token = null;
-        this.user = null;
-        localStorage.removeItem('token');
-    }
-
-    isAuthenticated() {
-        return !!this.token && !!this.user;
-    }
-
-    hasRole(role) {
-        return this.user && this.user.role === role;
-    }
-
-    isAdmin() {
-        return this.hasRole('admin');
-    }
-
-    isDriver() {
-        return this.hasRole('driver');
-    }
-
-    isOwner() {
-        return this.hasRole('owner');
-    }
-
-    getToken() {
-        return this.token;
-    }
-
-    getUser() {
-        return this.user;
+        localStorage.removeItem("token");
+        localStorage.removeItem("userEmail");
+        window.location.href = "/index.html";
     }
 }
 
-// Global auth instance
-const auth = new AuthService();
+// Initialize auth when DOM is loaded
+document.addEventListener("DOMContentLoaded", () => {
+    window.auth = new Auth();
+});
 
-// Utility functions
-function showAlert(message, type = 'error', containerId = 'alertContainer') {
-    const container = document.getElementById(containerId);
-    if (!container) {
-        // Create alert container if it doesn't exist
-        const newContainer = document.createElement('div');
-        newContainer.id = containerId;
-        newContainer.className = 'alert-container';
-        document.querySelector('main, .auth-card')?.prepend(newContainer);
-        return showAlert(message, type, containerId);
+// Global logout function
+window.logout = function() {
+    if (window.auth) {
+        window.auth.logout();
+    } else {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userEmail");
+        window.location.href = "/home.html";
     }
-
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type}`;
-    alertDiv.innerHTML = `
-        <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
-        <span>${message}</span>
-        <button class="alert-close" onclick="this.parentElement.remove()">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
-    
-    // Add close button styles
-    const style = document.createElement('style');
-    style.textContent = `
-        .alert {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            position: relative;
-        }
-        .alert i:first-child {
-            font-size: 1.2rem;
-        }
-        .alert-close {
-            margin-left: auto;
-            background: none;
-            border: none;
-            color: inherit;
-            cursor: pointer;
-            opacity: 0.7;
-            padding: 0.25rem;
-        }
-        .alert-close:hover {
-            opacity: 1;
-        }
-    `;
-    document.head.appendChild(style);
-    
-    container.innerHTML = '';
-    container.appendChild(alertDiv);
-    
-    // Auto-remove success/info alerts after 5 seconds
-    if (type !== 'error') {
-        setTimeout(() => {
-            if (alertDiv.parentElement === container) {
-                alertDiv.remove();
-            }
-        }, 5000);
-    }
-}
-
-function redirectToDashboard() {
-    window.location.href = 'dashboard.html';
-}
-
-function redirectToLogin() {
-    window.location.href = 'login.html';
-}
-
-function redirectToHome() {
-    window.location.href = 'index.html';
-}
-
-// Check authentication on page load for protected pages
-function checkAuth(requireAuth = false) {
-    const isAuthPage = window.location.pathname.includes('login.html') || 
-                       window.location.pathname.includes('register.html');
-    
-    if (!auth.isAuthenticated() && requireAuth) {
-        redirectToLogin();
-        return false;
-    }
-    
-    if (auth.isAuthenticated() && isAuthPage) {
-        redirectToDashboard();
-        return false;
-    }
-    
-    return true;
-}
-
-// Password strength checker
-function checkPasswordStrength(password) {
-    let strength = 0;
-    
-    // Length check
-    if (password.length >= 8) strength += 1;
-    if (password.length >= 12) strength += 1;
-    
-    // Complexity checks
-    if (/[A-Z]/.test(password)) strength += 1;
-    if (/[a-z]/.test(password)) strength += 1;
-    if (/[0-9]/.test(password)) strength += 1;
-    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-    
-    return strength;
-}
+};
