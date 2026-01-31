@@ -4,14 +4,35 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// Option 1: Using DATABASE_URL (Cleanest approach)
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: "postgres",
+  logging: false,
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
+  },
+  dialectOptions: {
+    ssl: process.env.NODE_ENV === 'production' ? {
+      require: true,
+      rejectUnauthorized: false
+    } : false
+  }
+});
+
+// Option 2: Using individual variables (if you prefer)
+/*
 const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
+  process.env.DB_NAME || "park", // default to 'park'
+  process.env.DB_USER || "postgres",
+  process.env.DB_PASSWORD || "armydec4",
   {
-    host: process.env.DB_HOST,
-    dialect: "mysql",
-    logging: false, // Disable SQL logging in production
+    host: process.env.DB_HOST || "localhost",
+    port: process.env.DB_PORT || 5432,
+    dialect: "postgres",
+    logging: false,
     pool: {
       max: 5,
       min: 0,
@@ -20,13 +41,19 @@ const sequelize = new Sequelize(
     }
   }
 );
+*/
 
-// Test connection
+// Test connection with PostgreSQL-specific check
 try {
   await sequelize.authenticate();
-  console.log('✅ MySQL connection established successfully.');
+  console.log('✅ PostgreSQL connection established successfully.');
+  
+  // Optional: Verify PostgreSQL version
+  const [result] = await sequelize.query("SELECT version();");
+  console.log(`📊 PostgreSQL Version: ${result[0].version.split(' ')[1]}`);
 } catch (error) {
-  console.error('❌ Unable to connect to MySQL:', error);
+  console.error('❌ Unable to connect to PostgreSQL:', error.message);
+  console.error('Full error:', error);
 }
 
 export default sequelize;
