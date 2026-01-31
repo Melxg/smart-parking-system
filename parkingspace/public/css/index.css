@@ -1,5 +1,61 @@
 /* Landing Page Styles */
 
+/* Header */
+.landing-header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: var(--transition);
+}
+
+.landing-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+.landing-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.brand-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    display: grid;
+    place-items: center;
+    color: white;
+    font-size: 1.3rem;
+    transition: var(--transition);
+}
+
+.brand-text {
+    font-weight: 700;
+    font-size: 1.4rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.landing-header .theme-toggle {
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
 /* Reset and Base */
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
@@ -515,6 +571,27 @@ h2::after {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    /* Header Responsive */
+    .landing-header-container {
+        padding: 15px 20px !important;
+    }
+    
+    .brand-text {
+        font-size: 1.2rem !important;
+    }
+    
+    .brand-icon {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1.1rem !important;
+    }
+    
+    .landing-header .theme-toggle {
+        width: 40px !important;
+        height: 40px !important;
+        margin-left: 8px !important;
+    }
+    
     .home-hero {
         padding: 60px 20px;
     }
@@ -577,6 +654,36 @@ h2::after {
 }
 
 @media (max-width: 480px) {
+    /* Header Responsive - Small Mobile */
+    .landing-header-container {
+        padding: 12px 15px !important;
+    }
+    
+    .brand-text {
+        font-size: 1rem !important;
+    }
+    
+    .brand-icon {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 1rem !important;
+    }
+    
+    .landing-header .theme-toggle {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 0.9rem !important;
+        margin-left: 8px !important;
+    }
+    
+    .landing-brand {
+        gap: 8px !important;
+    }
+    
+    .home-hero {
+        padding: 40px 15px;
+    }
+    
     .home-hero h1 {
         font-size: 2rem;
     }
@@ -592,6 +699,10 @@ h2::after {
     
     h2 {
         font-size: 1.8rem;
+    }
+    
+    .parking-card {
+        padding: 20px;
     }
     
     .parking-card h3 {
